@@ -22,7 +22,7 @@ class Campaign(models.Model):
         return f"Campaign id-{self.pk} - {self.start_time} to {self.end_time}"
 
 class Message(models.Model):
-    send_time = models.DateTimeField(auto_now_add=True, default=timezone.now, verbose_name='Sent at')
+    send_time = models.DateTimeField(auto_now_add=True, verbose_name='Sent at')
     campaign = models.ForeignKey('Campaign', on_delete=models.CASCADE ,related_name='messages', verbose_name='Campaign')
     client = models.ForeignKey('Client', on_delete=models.CASCADE, related_name='messages', verbose_name='Client')
 

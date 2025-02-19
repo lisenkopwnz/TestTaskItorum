@@ -16,7 +16,7 @@ class CampaignSerializer(serializers.ModelSerializer):
 class MessageSerializer(serializers.ModelSerializer):
     campaign = CampaignSerializer()
     client = ClientSerializer()
-    
+
     class Meta:
         model = Message
         fields = ['id', 'send_time', 'campaign', 'client']
