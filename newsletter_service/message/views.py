@@ -1,15 +1,8 @@
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
-from message.models import Client, Campaign, Message
-from message.serializer import ClientSerializer, CampaignSerializer, MessageSerializer
+from message.models import Message
+from message.serializer import MessageSerializer
 
-
-
-
-
-class MailingViewSet(ModelViewSet):
-    queryset = Campaign.objects.all()
-    serializer_class = CampaignSerializer
 
 class MessageViewSet(ReadOnlyModelViewSet):
     queryset = Message.objects.all()

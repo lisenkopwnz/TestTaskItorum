@@ -1,3 +1,5 @@
+version: '3'
+
 services:
   web:
     build:
@@ -7,11 +9,12 @@ services:
     volumes:
       - .:/code
     env_file:
-      - .env  # Убрал `./`
+      - .env
     ports:
       - "8000:8000"
     depends_on:
       - db
+      - redis
     networks:
       - backend
 
@@ -31,6 +34,24 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
+
+  celery:
+    build: .
+    command: ["/bin/bash", "/code/wait-for-services.sh", "celery", "-A", "my_project", "worker", "--loglevel=info"]
+    depends_on:
+      - redis
+      - web
+    env_file:
+      - .env
+    networks:
+      - backend
 
 volumes:
   postgres_data:

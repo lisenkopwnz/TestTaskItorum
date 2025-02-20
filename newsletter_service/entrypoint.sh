@@ -1,31 +1,34 @@
 #!/bin/bash
 
-# Ожидание запуска PostgreSQL
-echo "Ожидание запуска PostgreSQL на $DB_HOST:$DB_PORT..."
+# Ожидание запуска Redis
+echo "Ожидание запуска Redis на $REDIS_HOST:$REDIS_PORT..."
 timeout=240
-
-while ! nc -z $DB_HOST $DB_PORT; do
+while ! nc -z $REDIS_HOST $REDIS_PORT; do
     sleep 0.1
     timeout=$((timeout - 1))
 
     if [ $timeout -le 0 ]; then
-        echo "Ошибка: PostgreSQL не запустился за ожидаемое время."
+        echo "Ошибка: Redis не запустился за ожидаемое время."
         exit 1
     fi
 done
 
-echo "PostgreSQL доступен."
+echo "Redis доступен."
 
-# Автоматическое создание миграций и их применение
-echo "Применяю миграции..."
-if ! python manage.py makemigrations; then
-    echo "Ошибка: Не удалось создать миграции"
-    exit 1
-fi
+# Ожидание запуска веб-приложения
+echo "Ожидание запуска веб-приложения на $WEB_HOST:$WEB_PORT..."
+timeout=240
+while ! nc -z $WEB_HOST $WEB_PORT; do
+    sleep 0.1
+    timeout=$((timeout - 1))
 
-if ! python manage.py migrate; then
-    echo "Ошибка: Не удалось применить миграции"
-    exit 1
-fi
+    if [ $timeout -le 0 ]; then
+        echo "Ошибка: Веб-приложение не запустилось за ожидаемое время."
+        exit 1
+    fi
+done
 
+echo "Веб-приложение доступно."
+
+# Запуск Celery
 exec "$@"

@@ -1,8 +1,8 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.timezone import now
-
-from message.models import Campaign
+from .task import send_mailing
+from campaigns.models import Campaign
 
 
 @receiver(post_save, sender=Campaign)

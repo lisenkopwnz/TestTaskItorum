@@ -1,6 +1,9 @@
+from celery import shared_task
 from django.utils.timezone import now
 
-from message.models import Campaign, Client, Message
+from campaigns.models import Campaign
+from client.models import Client
+from message.models import Message
 
 
 @shared_task
