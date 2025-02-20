@@ -109,3 +109,32 @@ CELERY_TASK_QUEUES = (
 )
 
 CELERY_TASK_DEFAULT_QUEUE = 'work_queue'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+
+    # Формат логов
+    'formatters': {
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    }
+}
