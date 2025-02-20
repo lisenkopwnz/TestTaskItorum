@@ -1,5 +1,5 @@
 """
-URL configuration for email_campaigns project.
+URL configuration for newsletter_service project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.1/topics/http/urls/
@@ -19,5 +19,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('messaging.urls'))
+    path('client/', include('client.urls')),
+    path('', include('message.urls'))
 ]

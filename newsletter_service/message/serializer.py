@@ -1,12 +1,8 @@
 from rest_framework import serializers
 
-from messaging.models import Client, Campaign, Message
+from client.serializer import ClientSerializer
+from message.models import Campaign, Message
 
-
-class ClientSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Client
-        fields = ['id', 'phone_number', 'operator_code', 'tag']
 
 class CampaignSerializer(serializers.ModelSerializer):
     class Meta:

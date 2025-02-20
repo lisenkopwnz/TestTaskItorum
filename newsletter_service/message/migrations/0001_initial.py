@@ -38,8 +38,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('send_time', models.DateTimeField(auto_now_add=True, verbose_name='Sent at')),
-                ('campaign', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='messages', to='messaging.campaign', verbose_name='Campaign')),
-                ('client', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='messages', to='messaging.client', verbose_name='Client')),
+                ('campaign', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='messages', to='message.campaign', verbose_name='Campaign')),
+                ('client', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='messages', to='message.client', verbose_name='Client')),
             ],
         ),
     ]

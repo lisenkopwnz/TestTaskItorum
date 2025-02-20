@@ -1,7 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 
-from messaging.models import Client
-from messaging.serializer import ClientSerializer
+from client.models import Client
+from client.serializer import ClientSerializer
 
 
 class ClientViewSet(ModelViewSet):
