@@ -1,6 +1,4 @@
 from django.db import models
-from phonenumber_field.modelfields import PhoneNumberField
-from django.utils import timezone
 
 
 class Message(models.Model):
