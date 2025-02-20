@@ -6,9 +6,9 @@ from client.models import Client
 from message.models import Message
 
 
-@shared_task
-def send_mailing(mailing_id):
-    """Задача отправки рассылки"""
+@shared_task(bind=True, max_retries=5, default_retry_delay=10, retry_backoff=True, retry_backoff_max=300)
+def send_mailing(self, mailing_id):
+    """Задача отправки рассылки с экспоненциальной задержкой"""
     try:
         mailing = Campaign.objects.get(id=mailing_id)
         current_time = now()
@@ -35,5 +35,10 @@ def send_mailing(mailing_id):
                 )
         else:
             print("Время рассылки не в пределах допустимого интервала.")
+
     except Campaign.DoesNotExist:
         print("Рассылка не найдена.")
+    except Exception as e:
+        print(f"Произошла ошибка: {e}")
+        # Если что-то пошло не так, повторяем задачу с экспоненциальной задержкой
+        raise self.retry(exc=e)  # Повторить задачу с ошибкой

@@ -1,4 +1,6 @@
 from django.db import models
+from rest_framework.exceptions import ValidationError
+
 
 class Campaign(models.Model):
     start_time = models.DateTimeField(verbose_name="Start Time")
@@ -9,3 +11,7 @@ class Campaign(models.Model):
 
     def __str__(self):
         return f"Campaign id-{self.pk} - {self.start_time} to {self.end_time}"
+
+    def clean(self):
+        if self.end_time <= self.start_time:
+            raise ValidationError("End time cannot be earlier than start time")
