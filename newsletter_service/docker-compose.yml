@@ -1,15 +1,16 @@
-version: '3'
+version: '3.9'
 
 services:
+  # Контейнер с приложением
   web:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: mail-dispatch-service
+    container_name: newsletter_service
     volumes:
-      - .:/code
+      - .:/newsletter_service
     env_file:
-      - .env
+      - ./.env  # Подключаем файл с переменными окружения
     ports:
       - "8000:8000"
     depends_on:
@@ -18,38 +19,27 @@ services:
     networks:
       - backend
 
+  # Контейнер с базой данных PostgreSQL
   db:
     image: postgres:16-alpine
-    container_name: db-postgres
-    env_file:
-      - .env
+    container_name: db-postgres-platform_bestcar
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
       - backend
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER}" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
 
+  # Контейнер Redis
   redis:
-    image: redis:alpine
+    image: redis:7-alpine
+    container_name: redis
     ports:
       - "6379:6379"
-    networks:
-      - backend
-
-  celery:
-    build: .
-    command: ["/bin/bash", "/code/wait-for-services.sh", "celery", "-A", "my_project", "worker", "--loglevel=info"]
-    depends_on:
-      - redis
-      - web
-    env_file:
-      - .env
     networks:
       - backend
 

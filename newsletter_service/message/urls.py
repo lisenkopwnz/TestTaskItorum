@@ -1,13 +1,13 @@
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
+from rest_framework.routers import DefaultRouter, SimpleRouter
 
 from campaigns.views import MailingViewSet
 
-campaign_router = DefaultRouter()
+message_router = SimpleRouter()
 
-campaign_router.register('campaign', MailingViewSet, basename='campaign')
+message_router.register(r'', MailingViewSet, basename='message')
 
 
 urlpatterns = [
-    path('api/', include(campaign_router.urls)),
+    path('api/', include(message_router.urls)),
 ]

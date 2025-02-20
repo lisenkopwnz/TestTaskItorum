@@ -2,6 +2,8 @@ import os
 import environ
 from pathlib import Path
 from kombu import Queue
+import logging
+import logging.config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
@@ -21,7 +23,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'message',
     'client',
-    'campaigns'
+    'campaigns.apps.CampaignsConfig'
 ]
 
 MIDDLEWARE = [
@@ -57,11 +59,11 @@ WSGI_APPLICATION = 'newsletter_service.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env.str('DB_NAME', 'myprojectdb'),
-        'USER': env.str('DB_USER', 'myprojectuser'),
-        'PASSWORD': env.str('DB_PASSWORD', 'password'),
-        'HOST': env.str('DB_HOST', 'localhost'),
-        'PORT': env.str('DB_PORT', '5432'),
+        'NAME': os.getenv('DB_NAME', 'default_db_name'),
+        'USER': os.getenv('DB_USER', 'default_user'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'default_password'),
+        'HOST': os.getenv('DB_HOST', 'db'),  # db - это имя сервиса в docker-compose.yml
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 
@@ -89,52 +91,55 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://redis:6379/0')
-CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND', default='redis://redis:6379/0')
-CELERY_ACCEPT_CONTENT = env.list('CELERY_ACCEPT_CONTENT', default=['json'])
-CELERY_TASK_SERIALIZER = env('CELERY_TASK_SERIALIZER', default='json')
-CELERY_RESULT_SERIALIZER = env('CELERY_RESULT_SERIALIZER', default='json')
-CELERY_TIMEZONE = env('CELERY_TIMEZONE', default='UTC')
+# Конфигурация Celery через os.getenv()
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://redis:6379/0')
+CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://redis:6379/0')
+CELERY_ACCEPT_CONTENT = os.getenv('CELERY_ACCEPT_CONTENT', 'json').split(',')
+CELERY_TASK_SERIALIZER = os.getenv('CELERY_TASK_SERIALIZER', 'json')
+CELERY_RESULT_SERIALIZER = os.getenv('CELERY_RESULT_SERIALIZER', 'json')
+CELERY_TIMEZONE = os.getenv('CELERY_TIMEZONE', 'UTC')
 
 CELERY_TASK_FAILURES = True
 CELERY_TASK_ACKS_LATE = True
 
+CELERY_TASK_QUEUES = (
+    Queue('work_queue', routing_key='work_queue'),  # Убедись, что очередь правильно настроена
+    Queue('failed_queue', routing_key='failed_queue'),
+)
+
+CELERY_TASK_DEFAULT_QUEUE = 'work_queue'  # Устанавливаем очередь по умолчанию для задач
 CELERY_TASK_ROUTES = {
     'tasks.send_mailing': {'queue': 'work_queue'},
 }
 
-CELERY_TASK_QUEUES = (
-    Queue('default', routing_key='work_queue'),
-    Queue('failed_queue', routing_key='failed_queue'),
-)
 
-CELERY_TASK_DEFAULT_QUEUE = 'work_queue'
-
-LOGGING = {
+LOGGING_CONFIG = None
+logging.config.dictConfig({
     'version': 1,
     'disable_existing_loggers': False,
-
-    # Формат логов
     'formatters': {
-        'simple': {
-            'format': '{levelname} {message}',
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
             'style': '{',
         },
     },
-
     'handlers': {
         'console': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.StreamHandler',
-            'formatter': 'simple',
+            'formatter': 'verbose',
         },
     },
-
     'loggers': {
+        'duration_request_view': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
         'django': {
             'handlers': ['console'],
             'level': 'INFO',
-            'propagate': True,
+            'propagate': False,
         },
-    }
-}
+    },
+})

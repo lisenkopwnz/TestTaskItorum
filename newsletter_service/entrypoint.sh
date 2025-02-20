@@ -1,34 +1,58 @@
 #!/bin/bash
 
+# Ожидание запуска PostgreSQL
+echo "Ожидание запуска PostgreSQL на $DB_HOST:$DB_PORT..."
+timeout=240
+
+while ! nc -z $DB_HOST $DB_PORT; do
+    sleep 0.1
+    timeout=$((timeout - 1))
+
+    if [ $timeout -le 0 ]; then
+        echo "Ошибка: PostgreSQL не запустился за отведённое время."
+        exit 1
+    fi
+done
+
+echo "PostgreSQL запущен. Начинаем подготовку приложения..."
+
 # Ожидание запуска Redis
 echo "Ожидание запуска Redis на $REDIS_HOST:$REDIS_PORT..."
 timeout=240
+
 while ! nc -z $REDIS_HOST $REDIS_PORT; do
     sleep 0.1
     timeout=$((timeout - 1))
 
     if [ $timeout -le 0 ]; then
-        echo "Ошибка: Redis не запустился за ожидаемое время."
+        echo "Ошибка: Redis не запустился за отведённое время."
         exit 1
     fi
 done
 
-echo "Redis доступен."
+echo "Redis запущен. Продолжаем..."
 
-# Ожидание запуска веб-приложения
-echo "Ожидание запуска веб-приложения на $WEB_HOST:$WEB_PORT..."
-timeout=240
-while ! nc -z $WEB_HOST $WEB_PORT; do
-    sleep 0.1
-    timeout=$((timeout - 1))
+# Создание миграций
+echo "Создание миграций..."
+if ! python manage.py makemigrations; then
+    echo "Ошибка: не удалось создать миграции"
+    exit 1
+fi
 
-    if [ $timeout -le 0 ]; then
-        echo "Ошибка: Веб-приложение не запустилось за ожидаемое время."
-        exit 1
-    fi
-done
+# Применение миграций
+echo "Применение миграций..."
+if ! python manage.py migrate --noinput; then
+    echo "Ошибка: не удалось применить миграции"
+    exit 1
+fi
 
-echo "Веб-приложение доступно."
+# Запуск приложения Django
+echo "Запуск приложения Django..."
+python manage.py runserver 0.0.0.0:8000 &
 
-# Запуск Celery
-exec "$@"
+# Запуск Celery worker
+echo "Запуск Celery worker..."
+celery -A newsletter_service worker --loglevel=info -Q work_queue &
+
+# Ожидание всех процессов
+wait -n
