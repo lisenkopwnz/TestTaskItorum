@@ -30,7 +30,7 @@ def send_mailing(self, mailing_id):
             for client in clients:
                 # Прерываем рассылку, если время завершения прошло
                 if now() > mailing.end_time:
-                    logger.warning(f"Время рассылки {mailing.id} истекло для клиента {client.phone_number}. "
+                    logger.warning(f"Время рассылки {mailing.id} истекло для клиента {client.phone_number}."
                                    f"Прекращаем рассылку.")
                     break
 

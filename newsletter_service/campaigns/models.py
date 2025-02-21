@@ -14,8 +14,9 @@ class Campaign(models.Model):
         start_time (DateTimeField): Дата и время начала кампании.
         end_time (DateTimeField): Дата и время окончания кампании.
         message_text (TextField): Текст сообщения, которое будет отправлено клиентам.
-        operator_code_filter (CharField): Код оператора.
+        operator_code_filter (CharField): Код оператора для фильтрации получателей.
         tag_filter (CharField): Тег для фильтрации получателей.
+        __task_id (CharField): Приватное поле для хранения ID задачи Celery.
 
     Валидация:
         - Дата окончания не может быть раньше даты начала.
@@ -25,9 +26,12 @@ class Campaign(models.Model):
     Методы:
         __str__: Возвращает строковое представление кампании.
         clean: Проверяет корректность дат перед сохранением.
+        get_task_id: Получает ID задачи Celery.
+        set_task_id: Устанавливает ID задачи Celery.
+        get: Класс-метод для получения кампании по заданным фильтрам.
 
     Исключения:
-        ValidationError: Выбрасывается при нарушении условий валидации.
+        ValidationError: Выбрасывается при нарушении условий валидации или отсутствии кампании.
     """
 
     start_time = models.DateTimeField(verbose_name="Дата и время начала")
@@ -35,6 +39,7 @@ class Campaign(models.Model):
     message_text = models.TextField(verbose_name="Текст сообщения")
     operator_code_filter = models.CharField(max_length=3, verbose_name="Код оператора")
     tag_filter = models.CharField(max_length=255, verbose_name="Тег")
+    _task_id = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return f"Рассылка ID-{self.pk} - {self.start_time} до {self.end_time}"
@@ -65,3 +70,22 @@ class Campaign(models.Model):
             return cls.objects.get(**kwargs)
         except cls.DoesNotExist:
             raise ValidationError(f"Рассылка не найдена.")
+
+    def get_task_id(self):
+        """
+        Получает ID задачи, связанной с кампанией.
+
+        Возвращаемое значение:
+            str: ID задачи, если оно было установлено.
+        """
+        return self._task_id
+
+    def set_task_id(self, task_id):
+        """
+        Устанавливает ID задачи, связанной с кампанией, без вызова сигналов.
+
+        Параметры:
+            task_id (str): уникальный идентификатор задачи Celery.
+        """
+        self.__class__.objects.filter(id=self.pk).update(_task_id=task_id)
+        self._task_id = task_id
