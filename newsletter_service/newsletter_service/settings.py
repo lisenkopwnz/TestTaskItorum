@@ -105,7 +105,7 @@ CELERY_TASK_ACKS_LATE = True
 
 # Очереди задач Celery
 CELERY_TASK_QUEUES = (
-    Queue('work_queue', routing_key='work_queue'),  # Убедитесь, что очередь настроена правильно
+    Queue('work_queue', routing_key='work_queue'),
     Queue('failed_queue', routing_key='failed_queue'),
 )
 
