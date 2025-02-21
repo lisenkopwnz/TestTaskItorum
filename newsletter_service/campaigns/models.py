@@ -51,9 +51,6 @@ class Campaign(models.Model):
         if self.end_time <= self.start_time:
             raise ValidationError("Дата окончания не может быть раньше даты начала.")
 
-        if self.start_time < now():
-            raise ValidationError("Дата начала не может быть в прошлом.")
-
         if self.end_time < now():
             raise ValidationError("Дата окончания не может быть в прошлом.")
 

@@ -1,6 +1,6 @@
 import os
 import logging.config
-
+import logging
 from kombu import Queue
 
 SECRET_KEY = 'django-insecure-9!)ioc!z0wp^bjh2mc&)6h_hmw0ngdp8pxq-ck^3&3bs7!-jj+'

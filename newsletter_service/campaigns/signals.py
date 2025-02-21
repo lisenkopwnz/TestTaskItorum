@@ -6,7 +6,7 @@ from django.utils.timezone import now
 from .task import send_mailing
 from campaigns.models import Campaign
 
-logger = logging.getLogger('duration_request_view')
+logger = logging.getLogger('console_log')
 
 @receiver(post_save, sender=Campaign)
 def schedule_mailing(sender, instance, created, **kwargs):
