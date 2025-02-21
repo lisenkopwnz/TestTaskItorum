@@ -1,5 +1,6 @@
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
+from rest_framework.exceptions import ValidationError
 
 
 class Client(models.Model):
@@ -48,3 +49,16 @@ class Client(models.Model):
         phone_number_str = str(self.phone_number)
         operator_code = phone_number_str[2:5]
         return operator_code
+
+    @classmethod
+    def filter(cls, **kwargs):
+        """
+        Класс-метод для получения кампаний по заданным фильтрам.
+        Возвращает QuerySet с найденными кампаниями. Если ничего не найдено, выбрасывает исключение.
+        """
+        campaigns = cls.objects.filter(**kwargs)
+
+        if not campaigns.exists():
+            raise ValidationError("Клиент не найден.")
+
+        return campaigns

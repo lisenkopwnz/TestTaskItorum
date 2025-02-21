@@ -23,4 +23,4 @@ class CampaignSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Campaign
-        fields = ['start_time', 'end_time', 'message_text', 'operator_code_filter', 'tag_filter']
+        fields = ['id','start_time', 'end_time', 'message_text', 'operator_code_filter', 'tag_filter']

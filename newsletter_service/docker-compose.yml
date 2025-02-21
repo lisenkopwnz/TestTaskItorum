@@ -1,7 +1,6 @@
 version: '3.9'
 
 services:
-  # Контейнер с приложением
   web:
     build:
       context: .
@@ -10,7 +9,7 @@ services:
     volumes:
       - .:/newsletter_service
     env_file:
-      - ./.env  # Подключаем файл с переменными окружения
+      - ./.env
     ports:
       - "8000:8000"
     depends_on:
@@ -19,14 +18,13 @@ services:
     networks:
       - backend
 
-  # Контейнер с базой данных PostgreSQL
   db:
     image: postgres:16-alpine
-    container_name: db-postgres-platform_bestcar
+    container_name: db-postgres-platform
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER:-myuser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-mypassword}
+      POSTGRES_DB: ${DB_NAME:-mydatabase}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -34,7 +32,6 @@ services:
     networks:
       - backend
 
-  # Контейнер Redis
   redis:
     image: redis:7-alpine
     container_name: redis

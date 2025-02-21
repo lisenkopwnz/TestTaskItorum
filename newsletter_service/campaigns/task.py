@@ -8,13 +8,13 @@ from client.models import Client
 from message.models import Message
 
 
-logger = logging.getLogger('duration_request_view')
+logger = logging.getLogger('console_log')
 
 @shared_task(bind=True, max_retries=5, default_retry_delay=10, retry_backoff=True, retry_backoff_max=300)
 def send_mailing(self, mailing_id):
     """Задача отправки рассылки с экспоненциальной задержкой"""
     try:
-        mailing = Campaign.objects.get(id=mailing_id)
+        mailing = Campaign.get(id=mailing_id)
         current_time = now()
 
         # Проверяем, что текущее время находится в пределах допустимого интервала рассылки
@@ -22,7 +22,7 @@ def send_mailing(self, mailing_id):
             logger.info(f"Запуск рассылки {mailing.id}: время в пределах допустимого интервала.")
 
             # Используем правильное имя поля для operator_code
-            clients = Client.objects.filter(
+            clients = Client.filter(
                 operator_code=mailing.operator_code_filter,
                 tag=mailing.tag_filter
             )

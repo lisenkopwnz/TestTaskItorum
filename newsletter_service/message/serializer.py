@@ -23,4 +23,4 @@ class MessageSerializer(serializers.ModelSerializer):
         Указывает поля, которые будут включены в сериализованный вывод.
         """
         model = Message
-        fields = ['send_time', 'campaign', 'client']
+        fields = ['id', 'send_time', 'campaign', 'client']

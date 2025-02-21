@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Установим значения переменных по умолчанию, если они не заданы
+DB_HOST=${DB_HOST:-"db"}
+DB_PORT=${DB_PORT:-"5432"}
+REDIS_HOST=${REDIS_HOST:-"redis"}
+REDIS_PORT=${REDIS_PORT:-"6379"}
+
 # Ожидание запуска PostgreSQL
 echo "Ожидание запуска PostgreSQL на $DB_HOST:$DB_PORT..."
 timeout=240

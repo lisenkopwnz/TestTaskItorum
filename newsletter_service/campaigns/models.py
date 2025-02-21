@@ -37,7 +37,7 @@ class Campaign(models.Model):
     tag_filter = models.CharField(max_length=255, verbose_name="Тег")
 
     def __str__(self):
-        return f"Кампания ID-{self.pk} - {self.start_time} до {self.end_time}"
+        return f"Рассылка ID-{self.pk} - {self.start_time} до {self.end_time}"
 
     def clean(self):
         """
@@ -56,3 +56,15 @@ class Campaign(models.Model):
 
         if self.end_time < now():
             raise ValidationError("Дата окончания не может быть в прошлом.")
+
+    @classmethod
+    def get(cls, **kwargs):
+        """
+            Класс-метод для получения кампании по заданным фильтрам.
+            Этот метод позволяет искать кампанию по любому набору переданных параметров.
+            Параметры передаются через `**kwargs`, что позволяет гибко фильтровать объекты модели.
+        """
+        try:
+            return cls.objects.get(**kwargs)
+        except cls.DoesNotExist:
+            raise ValidationError(f"Рассылка не найдена.")
