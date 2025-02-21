@@ -40,7 +40,7 @@
 ### 1. Клонировать репозиторий:
 
 
-git clone https://github.com/yourusername/newsletter-service.git
+git clone https://github.com/lisenkopwnz/TestTaskItorum
 
 cd newsletter-service
 
