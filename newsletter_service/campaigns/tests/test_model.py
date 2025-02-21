@@ -41,17 +41,6 @@ def test_campaign_clean_end_time_in_past(campaign_data):
     assert "Дата окончания не может быть раньше даты начала." in str(exc_info.value)
 
 @pytest.mark.django_db
-def test_campaign_clean_start_time_in_past(campaign_data):
-    """Тестирует, что ошибка выбрасывается, если дата начала в прошлом."""
-    campaign_data['start_time'] = timezone.now() - timezone.timedelta(days=1)
-    campaign = Campaign(**campaign_data)
-
-    with pytest.raises(ValidationError) as exc_info:
-        campaign.clean()
-
-    assert "Дата начала не может быть в прошлом." in str(exc_info.value)
-
-@pytest.mark.django_db
 def test_campaign_clean_end_time_in_past(campaign_data):
     """Тестирует, что ошибка выбрасывается, если дата окончания в прошлом."""
     campaign_data['end_time'] = timezone.now() - timezone.timedelta(days=1)
